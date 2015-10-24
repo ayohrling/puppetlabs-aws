@@ -7,19 +7,22 @@ class Puppet::Provider::Route53Record < PuppetX::Puppetlabs::Aws
       zones_response = route53_client.list_hosted_zones()
       records = []
       zones_response.data.hosted_zones.each do |zone|
-        route53_client.list_resource_record_sets(hosted_zone_id: zone.id).each do |records_response|
-        records_response.data.resource_record_sets.each do |record|
-          records << new({
-            name: record.name,
-            ensure: :present,
-            zone: zone.name,
-            ttl: record.ttl,
-            values: record.resource_records.map(&:value),
-          }) if record.type == record_type
+        if zone.config.private_zone == resource[:private]
+          route53_client.list_resource_record_sets(hosted_zone_id: zone.id).each do |records_response|
+            records_response.data.resource_record_sets.each do |record|
+              records << new({
+                name: record.name,
+                ensure: :present,
+                zone: zone.name,
+                ttl: record.ttl,
+                values: record.resource_records.map(&:value),
+                private: zone.config.private_zone,
+              }) if record.type == record_type
+            end
+          end
         end
       end
-    end
-      
+
       records
     rescue StandardError => e
       raise PuppetX::Puppetlabs::FetchingAWSDataError.new(region, self.resource_type.name.to_s, e.message)
@@ -61,8 +64,9 @@ class Puppet::Provider::Route53Record < PuppetX::Puppetlabs::Aws
 
   def zone_id
     zone_name = resource[:zone] || @property_hash[:zone]
+    zone_private = resource[:private] || @property_hash[:private]
     zones = route53_client.list_hosted_zones.data.hosted_zones.select { |zone|
-      zone.name == zone_name
+      zone.name == zone_name && zone.config.private_zone = zone_private
     }
     fail "No Zone named #{zone_name}" if zones.count < 1
     fail "Multiple Zone records found for #{zone_name}" if zones.count > 1

@@ -40,6 +40,15 @@ module PuppetX
           end
         end
 
+        newproperty(:private) do
+          desc 'Whether the record is for a private zone.'
+          defaultto :false
+          newvalues(:true, :'false')
+          def insync?(is)
+            is.to_s = should.to_s
+          end
+        end
+
         autorequire(:route53_zone) do
           self[:zone]
         end

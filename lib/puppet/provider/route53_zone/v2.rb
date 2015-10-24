@@ -12,6 +12,7 @@ Puppet::Type.type(:route53_zone).provide(:v2, :parent => PuppetX::Puppetlabs::Aw
       new({
         name: zone.name,
         ensure: :present,
+        private: zone.config.private_zone,
       })
     end
   end
@@ -35,13 +36,17 @@ Puppet::Type.type(:route53_zone).provide(:v2, :parent => PuppetX::Puppetlabs::Aw
     route53_client.create_hosted_zone(
       name: name,
       caller_reference: reference,
+      hosted_zone_config: {
+        comment => name,
+        private_zone => resource[:private],
+      }
     )
     @property_hash[:ensure] = :present
   end
 
   def destroy
     Puppet.info("Deleting zone #{name}")
-    zones = route53_client.list_hosted_zones.data.hosted_zones.select { |zone| zone.name == name }
+    zones = route53_client.list_hosted_zones.data.hosted_zones.select { |zone| zone.name == name && zone.config.private_zone == resource[:private] }
     zones.each do |zone|
       route53_client.delete_hosted_zone(id: zone.id)
     end
