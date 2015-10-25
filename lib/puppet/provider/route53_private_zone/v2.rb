@@ -8,7 +8,7 @@ Puppet::Type.type(:route53_private_zone).provide(:v2, :parent => PuppetX::Puppet
 
   def self.instances
     response = route53_client.list_hosted_zones()
-    response.data.hosted_zones.collect do |zone|
+    response.data.hosted_zones.each do |zone|
       if zone.config.private_zone
         new({
           name: zone.name,
