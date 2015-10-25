@@ -41,7 +41,7 @@ Puppet::Type.type(:route53_private_zone).provide(:v2, :parent => PuppetX::Puppet
       caller_reference: reference,
       vpc: {
         vpc_region: default_region,
-        vpc_id: vpc,
+        vpc_id: resource[:vpc],
       },
     )
     @property_hash[:ensure] = :present
