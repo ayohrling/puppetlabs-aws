@@ -10,7 +10,7 @@ Puppet::Type.type(:route53_a_record).provide(:v2, :parent => Puppet::Provider::R
   end
 
   def self.is_private
-    false
+    true
   end
 
   def flush

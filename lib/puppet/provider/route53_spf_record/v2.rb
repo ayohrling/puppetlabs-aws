@@ -9,6 +9,10 @@ Puppet::Type.type(:route53_spf_record).provide(:v2, :parent => Puppet::Provider:
     'SPF'
   end
 
+  def self.is_private
+    false
+  end
+
   def flush
     update unless @property_hash[:ensure] == :absent
   end

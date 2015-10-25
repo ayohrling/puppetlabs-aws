@@ -7,7 +7,7 @@ class Puppet::Provider::Route53Record < PuppetX::Puppetlabs::Aws
       zones_response = route53_client.list_hosted_zones()
       records = []
       zones_response.data.hosted_zones.each do |zone|
-        if zone.config.private_zone == resource[:private]
+        if zone.config.private_zone == is_private
           route53_client.list_resource_record_sets(hosted_zone_id: zone.id).each do |records_response|
             records_response.data.resource_record_sets.each do |record|
               records << new({
@@ -64,9 +64,8 @@ class Puppet::Provider::Route53Record < PuppetX::Puppetlabs::Aws
 
   def zone_id
     zone_name = resource[:zone] || @property_hash[:zone]
-    zone_private = resource[:private] || @property_hash[:private]
     zones = route53_client.list_hosted_zones.data.hosted_zones.select { |zone|
-      zone.name == zone_name && zone.config.private_zone = zone_private
+      zone.name == zone_name && zone.config.private_zone == is_private
     }
     fail "No Zone named #{zone_name}" if zones.count < 1
     fail "Multiple Zone records found for #{zone_name}" if zones.count > 1

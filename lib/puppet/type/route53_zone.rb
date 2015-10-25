@@ -10,13 +10,4 @@ Puppet::Type.newtype(:route53_zone) do
     end
   end
 
-  newproperty(:private) do
-    desc 'Whether the zone is private.'
-    defaultto :false
-    newvalues(:true, :'false')
-    def insync?(is)
-      is.to_s = should.to_s
-    end
-  end
-
 end

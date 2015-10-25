@@ -9,6 +9,10 @@ Puppet::Type.type(:route53_txt_record).provide(:v2, :parent => Puppet::Provider:
     'TXT'
   end
 
+  def self.is_private
+    false
+  end
+
   def flush
     update unless @property_hash[:ensure] == :absent
   end
