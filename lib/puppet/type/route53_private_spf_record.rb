@@ -1,10 +1,10 @@
 require_relative '../../puppet_x/puppetlabs/route53_record'
 
-Puppet::Type.newtype(:route53_spf_record) do
+Puppet::Type.newtype(:route53_private_spf_record) do
   extend PuppetX::Puppetlabs::Route53Record
-  @doc = 'Type representing a Route53 SPF record.'
+  @doc = 'Type representing a private Route53 SPF record.'
   create_properties_and_params()
-  create_autorequire()
+  create_private_autorequire()
 
   # SPF records should always be wrapped in double quotes
   # this munge avoids the need to pass in a '"value"' to Puppet

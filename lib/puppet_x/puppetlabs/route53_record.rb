@@ -39,8 +39,16 @@ module PuppetX
             is.to_set == should.to_set
           end
         end
+      end
 
+      def create_autorequire
         autorequire(:route53_zone) do
+          self[:zone]
+        end
+      end
+
+      def create_private_autorequire
+        autorequire(:route53_private_zone) do
           self[:zone]
         end
       end

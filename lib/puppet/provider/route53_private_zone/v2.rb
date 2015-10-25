@@ -1,7 +1,7 @@
 require_relative '../../../puppet_x/puppetlabs/aws.rb'
 require 'securerandom'
 
-Puppet::Type.type(:route53_zone).provide(:v2, :parent => PuppetX::Puppetlabs::Aws) do
+Puppet::Type.type(:route53_private_zone).provide(:v2, :parent => PuppetX::Puppetlabs::Aws) do
   confine feature: :aws
 
   mk_resource_methods
@@ -9,7 +9,7 @@ Puppet::Type.type(:route53_zone).provide(:v2, :parent => PuppetX::Puppetlabs::Aw
   def self.instances
     response = route53_client.list_hosted_zones()
     response.data.hosted_zones.collect do |zone|
-      if not zone.config.private_zone
+      if zone.config.private_zone
         new({
           name: zone.name,
           ensure: :present,
@@ -39,7 +39,7 @@ Puppet::Type.type(:route53_zone).provide(:v2, :parent => PuppetX::Puppetlabs::Aw
       caller_reference: reference,
       hosted_zone_config: {
         comment => name,
-        private_zone => false,
+        private_zone => true,
       },
     )
     @property_hash[:ensure] = :present
@@ -47,7 +47,7 @@ Puppet::Type.type(:route53_zone).provide(:v2, :parent => PuppetX::Puppetlabs::Aw
 
   def destroy
     Puppet.info("Deleting zone #{name}")
-    zones = route53_client.list_hosted_zones.data.hosted_zones.select { |zone| zone.name == name && zone.config.private_zone == false }
+    zones = route53_client.list_hosted_zones.data.hosted_zones.select { |zone| zone.name == name && zone.config.private_zone == true }
     zones.each do |zone|
       route53_client.delete_hosted_zone(id: zone.id)
     end
