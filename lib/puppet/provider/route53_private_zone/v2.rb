@@ -35,7 +35,7 @@ Puppet::Type.type(:route53_private_zone).provide(:v2, :parent => PuppetX::Puppet
 
   def create
     reference = SecureRandom.hex
-    Puppet.info("Creating zone #{name} with #{reference} for #{vpc}")
+    Puppet.info("Creating zone #{name} with #{reference} for #{resource[:vpc]}")
     route53_client.create_hosted_zone(
       name: name,
       caller_reference: reference,
