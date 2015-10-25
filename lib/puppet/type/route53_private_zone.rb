@@ -10,4 +10,11 @@ Puppet::Type.newtype(:route53_private_zone) do
     end
   end
 
+  newparam(:vpc) do
+    desc 'The VPC ID for the zone to be accessible from'
+    validate do |value|
+      fail Puppet::Error, 'Empty values are not allowed' if value == ''
+    end
+  end
+
 end

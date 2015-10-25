@@ -7,15 +7,17 @@ Puppet::Type.type(:route53_private_zone).provide(:v2, :parent => PuppetX::Puppet
   mk_resource_methods
 
   def self.instances
+    zones = []
     response = route53_client.list_hosted_zones()
-    response.data.hosted_zones.collect do |zone|
+    response.data.hosted_zones.each do |zone|
       if zone.config.private_zone
-        new({
+        zones << new({
           name: zone.name,
           ensure: :present,
         })
       end
     end
+    zones
   end
 
   def self.prefetch(resources)
@@ -37,9 +39,9 @@ Puppet::Type.type(:route53_private_zone).provide(:v2, :parent => PuppetX::Puppet
     route53_client.create_hosted_zone(
       name: name,
       caller_reference: reference,
-      hosted_zone_config: {
-        comment => name,
-        private_zone => true,
+      vpc: {
+        vpc_region: default_region,
+        vpc_id: vpc,
       },
     )
     @property_hash[:ensure] = :present
